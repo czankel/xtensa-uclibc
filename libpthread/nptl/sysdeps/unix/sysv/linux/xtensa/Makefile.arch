@@ -1,0 +1,15 @@
+# Makefile for uClibc NPTL
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+libc_linux_arch_CSRC = fork.c
+libpthread_linux_arch_CSRC = pthread_once.c
+
+CFLAGS-OMIT-fork.c = -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread
+
+ASFLAGS-clone.S = -D_LIBC_REENTRANT
+ASFLAGS-vfork.S = -D_LIBC_REENTRANT
+ASFLAGS-syscall.S = -D_LIBC_REENTRANT
+ASFLAGS-mmap.S = -D_LIBC_REENTRANT

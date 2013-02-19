@@ -24,32 +24,31 @@
 #endif
 
 #if !defined NOT_IN_libc || defined IS_IN_libpthread || defined IS_IN_librt
-
+// FIXME: ENTRY includes an entry instruction, here we'd want entry sp, 48!
 # undef PSEUDO
 # define PSEUDO(name, syscall_name, args)				      \
   .text;								      \
   ENTRY (name)								      \
-    entry    a1, 48;							      \
     SINGLE_THREAD_P(a15);						      \
-    bnez     a15, L(pseudo_cancel);					      \
+    bnez     a15, .Lpseudo_cancel; 					      \
     DO_CALL (syscall_name, args);					      \
-    bgez     a2, L(pseudo_done);					      \
+    bgez     a2, .Lpseudo_done; 					      \
     movi     a4, -4095;							      \
-    blt      a2, a4, L(pseudo_done);					      \
+    blt      a2, a4, .Lpseudo_done; 					      \
     j        SYSCALL_ERROR_LABEL;					      \
-  L(pseudo_done):							      \
+  .Lpseudo_done: 							      \
     retw;								      \
-  L(pseudo_cancel):							      \
+  .Lpseudo_cancel: 							      \
     /* The syscall args are in a2...a7; no need to save */		      \
     CENABLE;								      \
     /* The return value is in a10 and preserved across the syscall */	      \
     DO_CALL (syscall_name, args);					      \
     CDISABLE;								      \
-    bgez     a2, L(pseudo_end);                                               \
+    bgez     a2, .Lpseudo_end;                                                \
     movi     a4, -4095;							      \
-    blt      a2, a4, L(pseudo_end);                                           \
+    blt      a2, a4, .Lpseudo_end;                                            \
     j        SYSCALL_ERROR_LABEL;					      \
-  L(pseudo_end):
+  .Lpseudo_end:
 
 
 # ifdef IS_IN_libpthread
@@ -88,8 +87,8 @@ extern int __local_multiple_threads attribute_hidden;
 			  header.multiple_threads) == 0, 1)
 #  else
 #   define SINGLE_THREAD_P(reg) \
-	rur reg, threadptr \
-	l32i reg, reg, MULTIPLE_THREADS_OFFSET
+	rur reg, threadptr; \
+	l32i reg, reg, MULTIPLE_THREADS_OFFSET;
 #  endif
 # endif
 

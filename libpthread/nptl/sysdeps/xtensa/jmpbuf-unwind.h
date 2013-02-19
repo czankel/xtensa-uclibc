@@ -1,5 +1,4 @@
-/* Private macros for accessing __jmp_buf contents.  Xtensa version.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2005,2006 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,23 +12,21 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <setjmp.h>
+#include <stdint.h>
 #include <unwind.h>
 
-#define JB_SP	1
-#define JB_PC	16
-
-/* Helper for generic ____longjmp_chk(). */
-#define JB_FRAME_ADDRESS(buf) \
-  ((void *) (unsigned long) (buf[JB_SP]))
+/* Test if longjmp to JMPBUF would unwind the frame
+   containing a local variable at ADDRESS.  */
+#undef _JMPBUF_UNWINDS
+#define _JMPBUF_UNWINDS(jmpbuf, address, demangle) \
+  ((void *) (address) < (void *) demangle (jmpbuf[JB_SP]))
 
 #define _JMPBUF_CFA_UNWINDS_ADJ(_jmpbuf, _context, _adj) \
   _JMPBUF_UNWINDS_ADJ (_jmpbuf, (void *) _Unwind_GetCFA (_context), _adj)
 
 #define _JMPBUF_UNWINDS_ADJ(_jmpbuf, _address, _adj) \
   ((uintptr_t) (_address) - (_adj) < (uintptr_t) (_jmpbuf)[JB_SP] - (_adj))
-
