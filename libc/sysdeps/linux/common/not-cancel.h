@@ -95,9 +95,9 @@ extern int __openat64_nocancel (int fd, const char *fname, int oflag,
 #ifdef __NR_pause
 # define pause_not_cancel() \
   INLINE_SYSCALL (pause, 0)
-/*#else
+#else
 # define pause_not_cancel() \
-  __pause_nocancel ()*/
+  __pause_nocancel ()
 #endif
 
 /* Uncancelable nanosleep.  */
