@@ -50,6 +50,15 @@
 #undef END
 #define END(name) ASM_SIZE_DIRECTIVE(name)
 
+/* Local label name for asm code. */
+#ifndef L
+# ifdef HAVE_ELF
+#  define L(name)       .L##name
+# else
+#  define L(name)       name
+# endif
+#endif
+
 /* Define a macro for this directive so it can be removed in a few places.  */
 #define LITERAL_POSITION .literal_position
 

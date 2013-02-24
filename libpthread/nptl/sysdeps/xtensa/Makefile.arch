@@ -18,6 +18,7 @@
 
 CFLAGS-pt-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
 
+ASFLAGS-dl-tlsdesc.S = -DNOT_IN_libc=1
 ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-nptl-sysdep.S = -DNOT_IN_libc -DIS_IN_libpthread	\
@@ -25,3 +26,17 @@ ASFLAGS-nptl-sysdep.S = -DNOT_IN_libc -DIS_IN_libpthread	\
                         -I$(top_srcdir)libc/sysdeps/linux/xtensa
 
 libc_arch_a_CSRC = libc-tls.c
+librt_arch_a_SSRC = dl-tlsdesc.S
+
+FLAGS-gen_tlsdesc.c = -S
+$(libpthread_arch_OUT)/gen_tlsdesc.c: $(libpthread_arch_DIR)/tlsdesc.sym | $(libpthread_arch_OUT)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
+$(libpthread_arch_OUT)/gen_tlsdesc.s: $(libpthread_arch_OUT)/gen_tlsdesc.c | headers
+        $(compile.c)
+libpthread-generated-y += $(libpthread_arch_OUT)/gen_tlsdesc.s
+$(libpthread_arch_OUT)/tlsdesc.h: $(libpthread_arch_OUT)/gen_tlsdesc.s
+	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+	@if test ! -s $@ ; then rm -f $@ ; false ; fi
+
+pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread_arch_OUT)/tlsdesc.h
+#gen-as-const-headers += tlsdesc.sym tcb-offsets.sym

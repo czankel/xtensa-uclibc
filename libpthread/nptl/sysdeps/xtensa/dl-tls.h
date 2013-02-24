@@ -17,6 +17,8 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#ifndef _XTENSA_DL_TLS_H
+#define _XTENSA_DL_TLS_H 1
 
 /* Type used for the representation of TLS information in the GOT.  */
 typedef struct
@@ -26,3 +28,34 @@ typedef struct
 } tls_index;
 
 extern void *__tls_get_addr (tls_index *ti);
+
+/* Type used to represent a TLS descriptor.  */
+struct tlsdesc
+{
+  union
+    {
+      void *pointer;
+      long value;
+    } argument;
+  ptrdiff_t (*entry)(struct tlsdesc *);
+};
+
+/* Type used as the argument in a TLS descriptor for a symbol that
+   needs dynamic TLS offsets.  */
+struct tlsdesc_dynamic_arg
+{
+  tls_index tlsinfo;
+  size_t gen_count;
+};
+
+extern ptrdiff_t attribute_hidden
+  _dl_tlsdesc_return(struct tlsdesc *),
+  _dl_tlsdesc_undefweak(struct tlsdesc *),
+  _dl_tlsdesc_resolve_hold(struct tlsdesc *),
+  _dl_tlsdesc_resolve_rela(struct tlsdesc *);
+
+extern void *_dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset);
+extern ptrdiff_t attribute_hidden
+  _dl_tlsdesc_dynamic(struct tlsdesc *);
+
+#endif

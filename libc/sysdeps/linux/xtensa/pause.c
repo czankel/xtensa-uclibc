@@ -36,3 +36,10 @@ __pause_nocancel (void)
 {
   return __syscall_pause ();
 }
+
+int
+__libc_pause(void)
+{
+  return __syscall_pause ();
+}
+weak_alias (__libc_pause, pause)
