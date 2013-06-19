@@ -158,7 +158,6 @@
 	j	.Lpseudo_end;
 # endif /* !USE___THREAD */
 #else /* !_LIBC_REENTRANT */
-#warning HA!
 #define SYSCALL_ERROR_HANDLER						      \
 0:	movi	a4, errno;						      \
 	neg	a2, a2;							      \

@@ -237,6 +237,14 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		break;
 	case R_XTENSA_TLSDESC_ARG:
 		CHECK_STATIC_TLS((struct link_map *) tls_tpnt);
+		if (!TRY_STATIC_TLS ((struct link_map *) tls_tpnt))
+			_dl_exit(1);
+#if 0
+			*reloca_addr =
+				_dl_make_tlsdesc_dynamic(tls_tpnt, symbol_addr + *reloc_addr);
+#endif
+		else
+			*reloc_addr += symbol_addr - tls_tpnt->l_tls_offset;
 		break;
 #endif
 
